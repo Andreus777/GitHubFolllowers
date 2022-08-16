@@ -20,6 +20,7 @@ class SearchVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
+        view.addSubviews(logoImageView, userNameTextField, callActionButton)
         configureLogoImageView()
         configureTextField()
         configureButton()
@@ -28,11 +29,12 @@ class SearchVC: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        userNameTextField.text = ""
         navigationController?.setNavigationBarHidden(false, animated: true)
     }
     
     func createDismissKeyboard() {
-        let tap = UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing))
+        let tap = UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing))
         view.addGestureRecognizer(tap)
     }
     
@@ -41,16 +43,14 @@ class SearchVC: UIViewController {
             presentGFAlertOnMainThread(title: "Empty username", message: "Please enter a username. We need to know who to look for 😃.", buttonTitle: "Ok")
             return
         }
-        let followersVC = FollowersListVC()
-        followersVC.username = userNameTextField.text
-        followersVC.title = userNameTextField.text
+        userNameTextField.resignFirstResponder()
+        let followersVC = FollowersListVC(username: userNameTextField.text ?? "")
         navigationController?.pushViewController(followersVC, animated: true)
     }
     
     func configureLogoImageView() {
-        view.addSubview(logoImageView)
         logoImageView.translatesAutoresizingMaskIntoConstraints = false
-        logoImageView.image = UIImage(named: "gh-logo")
+        logoImageView.image = Images.ghLogo
         
         NSLayoutConstraint.activate([
             logoImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 80),
@@ -61,7 +61,6 @@ class SearchVC: UIViewController {
     }
     
     func configureTextField() {
-        view.addSubview(userNameTextField)
         userNameTextField.delegate = self
         
         NSLayoutConstraint.activate([
@@ -74,7 +73,6 @@ class SearchVC: UIViewController {
     }
     
     func configureButton() {
-        view.addSubview(callActionButton)
         callActionButton.addTarget(self, action: #selector(pushFollowerListVC), for: .touchUpInside)
         
         NSLayoutConstraint.activate([

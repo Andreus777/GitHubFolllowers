@@ -9,7 +9,7 @@ import UIKit
 
 class GFAlertVC: UIViewController {
 
-    let containetView = UIView()
+    let containetView = GFAlertContainerView()
     let titleLabel = GFTitleLabel(fontSize: 20, testAligment: .center)
     let messageLanel = GFBodyLabel(testAligment: .center)
     let actionButton = GFButton(color: .systemPink, title: "Ok")
@@ -33,7 +33,10 @@ class GFAlertVC: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.75)
+        
+        view.backgroundColor = UIColor.black.withAlphaComponent(0.75)
+        view.addSubviews(containetView, titleLabel, actionButton, messageLanel)
+        
         configureContainerView()
         configureTitleLabel()
         configureActionButton()
@@ -41,24 +44,16 @@ class GFAlertVC: UIViewController {
     }
     
     func configureContainerView() {
-        view.addSubview(containetView)
-        containetView.layer.cornerRadius = 16
-        containetView.layer.borderWidth = 2
-        containetView.layer.borderColor =  UIColor.white.cgColor
-        containetView.backgroundColor = .systemBackground
-        containetView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             containetView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             containetView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             containetView.widthAnchor.constraint(equalToConstant: 280),
             containetView.heightAnchor.constraint(equalToConstant: 220)
-        
         ])
     }
     
     func configureTitleLabel() {
-        containetView.addSubview(titleLabel)
         titleLabel.text = alertTitle ?? ""
         
         NSLayoutConstraint.activate([
@@ -71,7 +66,6 @@ class GFAlertVC: UIViewController {
     }
     
     func configureActionButton() {
-        containetView.addSubview(actionButton)
         actionButton.setTitle(buttonTitle ?? "Ok", for: .normal)
         actionButton.addTarget(self, action: #selector(dismissVC), for: .touchUpInside)
         
@@ -85,7 +79,6 @@ class GFAlertVC: UIViewController {
     }
     
     func configureMessageLabel() {
-        containetView.addSubview(messageLanel)
         messageLanel.text = message ?? "Wrong reequest"
         messageLanel.numberOfLines = 4
         

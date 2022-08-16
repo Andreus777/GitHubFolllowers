@@ -7,13 +7,19 @@
 
 import UIKit
 
-class UserInfoVC: UIViewController {
+protocol UserInfoVCDelegate: AnyObject {
+    func didRequestFollowers(for username: String)
+}
+
+class UserInfoVC: GFDataLoadingVC {
     
     var username: String?
+    weak var delegate: UserInfoVCDelegate?
     
     let headerView = UIView()
     let viewNumberOne = UIView()
     let viewNumberTwo = UIView()
+    let dateLabel = GFBodyLabel(testAligment: .center)
     
     var itemViews: [UIView] = []
 
@@ -39,7 +45,7 @@ class UserInfoVC: UIViewController {
             switch result {
             case .success(let user):
                 DispatchQueue.main.async {
-                    self.addChildVC(childVC: GFUserInfoHeaderVC(user: user), to: self.headerView)
+                    self.configureUIElements(with: user)
                 }
             case .failure(let error):
                 self.presentGFAlertOnMainThread(title: "Something wrong", message: error.rawValue, buttonTitle: "Ok")
@@ -47,9 +53,16 @@ class UserInfoVC: UIViewController {
         }
     }
     
+    func configureUIElements(with user: User) {
+        self.addChildVC(childVC: GFUserInfoHeaderVC(user: user), to: self.headerView)
+        self.addChildVC(childVC: GFRepoItemVC(user: user, delegate: self), to: self.viewNumberOne)
+        self.addChildVC(childVC: GFFollowerItemVC(user: user, delegate: self), to: self.viewNumberTwo)
+        self.dateLabel.text = "GitHub since \(user.createdAt.convertDateToString())"
+    }
+    
     func congigureUI() {
         
-        itemViews = [headerView, viewNumberOne, viewNumberTwo]
+        itemViews = [headerView, viewNumberOne, viewNumberTwo, dateLabel]
         let padding: CGFloat = 20
         let itemHeight: CGFloat = 140
         
@@ -63,13 +76,11 @@ class UserInfoVC: UIViewController {
         }
         
         view.backgroundColor = .systemBackground
-        viewNumberOne.backgroundColor = .systemPink
-        viewNumberTwo.backgroundColor = .systemBlue
         
         NSLayoutConstraint.activate([
             headerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             
-            headerView.heightAnchor.constraint(equalToConstant: 180),
+            headerView.heightAnchor.constraint(equalToConstant: 210),
             
             viewNumberOne.topAnchor.constraint(equalTo: headerView.bottomAnchor, constant: padding),
            
@@ -77,7 +88,10 @@ class UserInfoVC: UIViewController {
             
             viewNumberTwo.topAnchor.constraint(equalTo: viewNumberOne.bottomAnchor, constant: padding),
           
-            viewNumberTwo.heightAnchor.constraint(equalToConstant: itemHeight)
+            viewNumberTwo.heightAnchor.constraint(equalToConstant: itemHeight),
+            
+            dateLabel.topAnchor.constraint(equalTo: viewNumberTwo.bottomAnchor, constant: padding),
+            dateLabel.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
     
@@ -86,5 +100,21 @@ class UserInfoVC: UIViewController {
         container.addSubview(childVC.view)
         childVC.view.frame = container.bounds
         childVC.didMove(toParent: self)
+    }
+}
+
+extension UserInfoVC: GFRepoItemVCDelegate, GFFollowersItemVCDelegate {
+    
+    func didTapGitHubProfile(for user: User) {
+        guard let url = URL(string: user.htmlUrl) else { presentGFAlertOnMainThread(title: "Invalid URL",
+                                                                                    message: "The url attached to this user is invalid",
+                                                                                    buttonTitle: "Ok")
+            return
+        }
+        presentSafariVC(with: url)
+    }
+    
+    func didTapGetFollowers(for user: User) {
+        delegate?.didRequestFollowers(for: user.login)
     }
 }

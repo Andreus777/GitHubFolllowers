@@ -14,11 +14,10 @@ class GFTitleLabel: UILabel {
         configure()
     }
     
-    init(fontSize: CGFloat, testAligment: NSTextAlignment) {
-        super.init(frame: .zero)
+    convenience init(fontSize: CGFloat, testAligment: NSTextAlignment) {
+        self.init(frame: .zero)
         self.font = UIFont.systemFont(ofSize: fontSize, weight: .bold)
         self.textAlignment = testAligment
-        configure()
     }
     
     required init?(coder: NSCoder) {

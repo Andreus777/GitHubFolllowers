@@ -27,6 +27,8 @@ class GFItemInfoView: UIView {
     }
     
     private func configure() {
+        addSubviews(titleLabel, countLabel, symbolView)
+        
         symbolView.translatesAutoresizingMaskIntoConstraints = false
         symbolView.contentMode = .scaleAspectFill
         symbolView.tintColor = .label
@@ -47,24 +49,24 @@ class GFItemInfoView: UIView {
             countLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor),
             countLabel.heightAnchor.constraint(equalToConstant: 18)
         ])
+    }
         
         func set(itemInfoType: ItemInfoType, count: Int) {
             switch itemInfoType {
             case .repos:
                 titleLabel.text = "Public repos"
-                symbolView.image = UIImage(systemName: GFSymbols.repos)
+                symbolView.image = GFSymbols.repos
             case .gists:
                 titleLabel.text = "Public gists"
-                symbolView.image = UIImage(systemName: GFSymbols.gists)
+                symbolView.image = GFSymbols.gists
             case .followers:
                 titleLabel.text = "Followers"
-                symbolView.image = UIImage(systemName: GFSymbols.followers)
+                symbolView.image = GFSymbols.followers
             case .following:
                 titleLabel.text = "Following"
-                symbolView.image = UIImage(systemName: GFSymbols.following)
+                symbolView.image = GFSymbols.following
             }
             
             countLabel.text = String(count)
         }
-    }
 }
